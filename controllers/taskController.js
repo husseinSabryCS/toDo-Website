@@ -6,8 +6,8 @@ const addTask = async (req, res) => {
 
     const task = new Task({ 
         name, 
-        description, 
-       
+        description,
+        user: req.user.id // إضافة معرف المستخدم
     });
 
     try {
@@ -18,15 +18,19 @@ const addTask = async (req, res) => {
     }
 };
 
+
 // الحصول على جميع المهام
 const getTasks = async (req, res) => {
     try {
-        const tasks = await Task.find();
+        const userId = req.user.id; // استخدم معرف المستخدم من req.user
+        const tasks = await Task.find({ user: userId }); // ابحث عن المهام التي تخص المستخدم
         res.send(tasks);
     } catch (err) {
         res.status(500).send(err);
     }
 };
+
+
 
 // حذف مهمة
 const deleteTask = async (req, res) => {
@@ -63,14 +67,16 @@ const updateStatus = async (req, res) => {
 // الحصول على المهام حسب الحالة
 const getTasksByStatus = async (req, res) => {
     const { status } = req.params; // الحصول على الحالة من الرابط
+    const userId = req.user.id; // الحصول على معرف المستخدم من req.user
 
     try {
-        const tasks = await Task.find({ status }); // البحث عن المهام حسب الحالة
+        const tasks = await Task.find({ status, user: userId }); // البحث عن المهام حسب الحالة والمستخدم
         res.json(tasks);
     } catch (err) {
         res.status(500).json({ message: 'Error fetching tasks' });
     }
 };
+
 
 module.exports = {
     addTask,
